@@ -7,9 +7,11 @@ import (
 	"os"
 	"ratelimiter/internal/limiter"
 	"ratelimiter/internal/limiter/persistence"
+	"ratelimiter/internal/server"
 	"strconv"
 	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
 )
@@ -54,15 +56,11 @@ func main() {
 	log.Printf("Conectado ao Redis com sucesso: %s", pong)
 
 	redisStore := persistence.NewRedisStore(redisClient)
-
 	rateLimiter := limiter.NewRateLimiter(redisStore, tokenMaxRequests, ipMaxRequest, banDuration)
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Requisições ok, pode seguir com as suas operações!"))
-	})
-
-	handler := rateLimiter.Middleware(mux)
+	r := mux.NewRouter()
+	server.SetupRouter(r)
+	handler := rateLimiter.Middleware(r)
 
 	log.Println("Servidor rodando na porta 8080")
 	if err := http.ListenAndServe(":8080", handler); err != nil {

@@ -37,20 +37,18 @@ func (rl *RateLimiter) Allow(ctx context.Context, apiKey, ip string) (bool, erro
 		maxRequests = rl.ipMaxRequest
 	}
 
-	// Tenta obter o valor atual do contador
 	count, err := rl.redisClient.Get(ctx, key)
 	if err != nil && err != redis.Nil {
 		return false, err
 	}
 
-	// Se a chave não existir, inicialize com 1 e defina a expiração
 	if count == 0 {
-		err := rl.redisClient.Incr(ctx, key) // Incrementa para criar a chave
+		err := rl.redisClient.Incr(ctx, key)
 		if err != nil {
 			return false, err
 		}
 
-		err = rl.redisClient.Expire(ctx, key, rl.banDuration) // Define a expiração
+		err = rl.redisClient.Expire(ctx, key, rl.banDuration)
 		if err != nil {
 			return false, err
 		}
@@ -58,13 +56,11 @@ func (rl *RateLimiter) Allow(ctx context.Context, apiKey, ip string) (bool, erro
 		return true, nil
 	}
 
-	// Se o contador já atingiu o máximo permitido
 	if count >= maxRequests {
 		log.Printf("Limite excedido para %s: %d requisições", key, count)
 		return false, nil
 	}
 
-	// Incrementa o contador, sem redefinir a expiração
 	err = rl.redisClient.Incr(ctx, key)
 	if err != nil {
 		return false, err

@@ -45,7 +45,7 @@ func generateJWT() (string, error) {
 func welcomeHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Iniciando a resposta para a rota padrão")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Welcome to the Rate Limiter"))
+	w.Write([]byte("Tudo Ok - Você pode continuar"))
 }
 
 func SetupRouter(r *mux.Router) {
