@@ -17,32 +17,32 @@ import (
 )
 
 func main() {
-	log.Println("Tentando carregar o arquivo .env")
+	log.Println("Trying to load the .env file")
 	err := godotenv.Load(".env")
 	if err != nil {
-		log.Fatal("Erro ao carregar o arquivo .env:", err)
+		log.Fatal("Error loading .env file:", err)
 	} else {
-		log.Println("Arquivo .env carregado com sucesso!")
+		log.Println(".env file loaded successfully!")
 	}
 
 	redisAddr := os.Getenv("REDIS_ADDR")
 	if redisAddr == "" {
-		log.Fatal("REDIS_ADDR não configurado no arquivo .env")
+		log.Fatal("REDIS_ADDR not configured in the .env file")
 	}
 
 	tokenMaxRequests, err := strconv.Atoi(os.Getenv("TOKEN_MAX_REQUESTS"))
 	if err != nil {
-		log.Fatal("Erro ao ler TOKEN_MAX_REQUESTS no arquivo .env:", err)
+		log.Fatal("Error reading TOKEN_MAX_REQUESTS from .env file:", err)
 	}
 
 	ipMaxRequest, err := strconv.Atoi(os.Getenv("IP_MAX_REQUESTS"))
 	if err != nil {
-		log.Fatal("Erro ao ler IP_MAX_REQUESTS no arquivo.env:", err)
+		log.Fatal("Error reading IP_MAX_REQUESTS from .env file:", err)
 	}
 
 	banDuration, err := time.ParseDuration(os.Getenv("BAN_DURATION"))
 	if err != nil {
-		log.Fatal("Erro ao ler BAN_DURATION no arquivo .env:", err)
+		log.Fatal("Error reading BAN_DURATION from .env file:", err)
 	}
 
 	redisClient := redis.NewClient(&redis.Options{
@@ -51,9 +51,9 @@ func main() {
 
 	pong, err := redisClient.Ping(context.Background()).Result()
 	if err != nil {
-		log.Fatalf("Erro ao conectar com o Redis: %v", err)
+		log.Fatalf("Error connecting to Redis: %v", err)
 	}
-	log.Printf("Conectado ao Redis com sucesso: %s", pong)
+	log.Printf("Successfully connected to Redis: %s", pong)
 
 	redisStore := persistence.NewRedisStore(redisClient)
 	rateLimiter := limiter.NewRateLimiter(redisStore, tokenMaxRequests, ipMaxRequest, banDuration)
@@ -62,8 +62,8 @@ func main() {
 	server.SetupRouter(r)
 	handler := rateLimiter.Middleware(r)
 
-	log.Println("Servidor rodando na porta 8080")
+	log.Println("Server running on port 8080")
 	if err := http.ListenAndServe(":8080", handler); err != nil {
-		log.Fatalf("Erro ao iniciar o servidor: %v", err)
+		log.Fatalf("Error starting server: %v", err)
 	}
 }

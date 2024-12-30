@@ -20,7 +20,7 @@ type TokenResponse struct {
 func generateJWT() (string, error) {
 	tokenMaxRequests, err := strconv.Atoi(os.Getenv("TOKEN_MAX_REQUESTS"))
 	if err != nil {
-		log.Printf("Erro ao converter TOKEN_MAX_REQUESTS: %v", err)
+		log.Printf("Error converting TOKEN_MAX_REQUESTS: %v", err)
 		return "", err
 	}
 
@@ -36,16 +36,16 @@ func generateJWT() (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedToken, err := token.SignedString(secretKey)
 	if err != nil {
-		log.Printf("Erro ao assinar o token: %v", err)
+		log.Printf("Error signing token: %v", err)
 		return "", err
 	}
 	return signedToken, nil
 }
 
 func welcomeHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("Iniciando a resposta para a rota padrão")
+	log.Println("Starting response to default route")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Tudo Ok - Você pode continuar"))
+	w.Write([]byte("Everything Ok - You can continue"))
 }
 
 func SetupRouter(r *mux.Router) {
